@@ -1,0 +1,8 @@
+PROJECT_NAME = IniP
+PROJECT_BRIEF = "Simple parser of .ini file. Implemented in a library."
+OUTPUT_DIRECTORY = _out/docs
+INPUT = src include
+FILE_PATTERNS = *.cpp *.hpp
+RECURSIVE = yes
+OPTIMIZE_OUTPUT_FOR_C = yes
+QUIET = yes

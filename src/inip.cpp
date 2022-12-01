@@ -8,13 +8,10 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/spirit.hpp>
 
+#include "../include/ini_p.hpp"
+
 using namespace std;
 using namespace boost::spirit;
-
-typedef pair<string, string> Entry;
-typedef list<Entry> Entries;
-typedef pair<string, Entries> Section;
-typedef list<Section> IniData;
 
 struct add_section 
 {
