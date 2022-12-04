@@ -8,58 +8,13 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/spirit.hpp>
 
-#include "../include/ini_p.hpp"
+#include "inip.hpp"
 
 using namespace std;
 using namespace boost::spirit;
-
-struct add_section 
-{
-    IniData &data_;
-    
-    add_section(IniData &data) : data_(data) {}
-    
-    void operator()(char const* p, char const* q) const 
-    {
-        string s(p,q);
-        boost::algorithm::trim(s);
-        data_.push_back(Section(s, Entries()));
-    }
-};
-
-struct add_key 
-{
-    IniData &data_;
-
-    add_key(IniData &data) : data_(data) {}
-
-    void operator()(char const* p, char const* q) const 
-    {
-        string s(p, q);
-        boost::algorithm::trim(s);
-        data_.back().second.push_back(Entry(s, string()));
-    }
-};
-
-struct add_value 
-{
-    IniData &data_;
-
-    add_value(IniData &data) : data_(data) {}
-
-    void operator()(char const* p, char const* q) const 
-    {
-        data_.back().second.back().second.assign(p, q);
-    }
-};
-
-struct is_comment 
-{
-    bool operator()(string const &s) const {
-        return s[0] == '\n' || s[0] == ';';
-    }
-};
-
+/**
+ * @brief Functor to find by key in pair.
+ */
 struct first_is 
 {
     string const &s_;
@@ -70,7 +25,16 @@ struct first_is
         return p.first == s_;
     }
 };
-
+/**
+ * @brief 
+ * 
+ * @param ini 
+ * @param s 
+ * @param p 
+ * @param res 
+ * @return true 
+ * @return false 
+ */
 bool find_value (IniData const &ini, string const &s, string const &p, string &res)
 {
     IniData::const_iterator sit = find_if(ini.begin(), ini.end(), first_is(s));
@@ -88,19 +52,20 @@ bool find_value (IniData const &ini, string const &s, string const &p, string &r
     res = it->second;
     return true;
 }
-
-/* Specification
-
-    inidata = spaces, {section} .
-    section = "[", ident, "]", stringSpaces, "\n", {entry} .
-    entry = ident, stringSpaces, "=", stringSpaces, value, "\n", spaces .
-    ident = identChar, {identChar} .
-    identChar = letter | digit | "_" | "." | "," | ":" | "(" | ")" | "{" | "}" | "-" | "#" | "@" | "&" | "*" | "|" .
-    value = {not "\n"} .
-    stringSpaces = {" " | "\t"} .
-    spaces = {" " | "\t" | "\n" | "\r"} .
-
-*/
+/**
+ * @brief Parser of ini files.
+ * 
+ * Specification:
+ * 
+ * inidata = spaces, {section} .
+ * section = "[", ident, "]", stringSpaces, "\n", {entry} .
+ * entry = ident, stringSpaces, "=", stringSpaces, value, "\n", spaces .
+ * ident = identChar, {identChar} .
+ * identChar = letter | digit | "_" | "." | "," | ":" | "(" | ")" | "{" | "}" | "-" | "#" | "@" | "&" | "*" | "|" .
+ * value = {not "\n"} .
+ * stringSpaces = {" " | "\t"} .
+ * spaces = {" " | "\t" | "\n" | "\r"} .
+ */
 struct inidata_parser : public grammar<inidata_parser> 
 {
     IniData &data_;
